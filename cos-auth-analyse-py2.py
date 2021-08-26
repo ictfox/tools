@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.x
 # coding=utf8
 
 from qcloud_cos import CosConfig
