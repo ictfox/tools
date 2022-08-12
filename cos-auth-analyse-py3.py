@@ -83,14 +83,14 @@ class CosBucket(object):
         try:
             resp = self.client.get_bucket_acl(Bucket=self.name)
             self.acl = resp['AccessControlList']['Grant']
-        except CosServiceError as err:
+        except Exception as err:
             print(err)
 
     def set_policy(self):
         try:
             resp = self.client.get_bucket_policy(Bucket=self.name)
             self.policy = ast.literal_eval(resp['Policy'])
-        except CosServiceError as err:
+        except Exception as err:
             print(err)
 
 class CamUser(object):
@@ -280,9 +280,13 @@ def init_cos_client(region):
     if region in cos_clients: 
         return cos_clients[region]
 
-    config = CosConfig(Secret_id=secret_id, Secret_key=secret_key, Region=region)
-    client = CosS3Client(config)
-    cos_clients['region'] = client
+    try:
+        config = CosConfig(Secret_id=secret_id, Secret_key=secret_key, Region=region)
+        client = CosS3Client(config)
+        cos_clients['region'] = client
+    except Exception as err:
+        print(err)
+        return None
     return client
 
 def list_users(client):
@@ -396,7 +400,12 @@ def init_cos_buckets():
 
     buckets = get_buckets()
     for bucket in buckets:
+        print("Init cos bucket: ", bucket)
         cos_client = init_cos_client(bucket['Location'])
+        if cos_client == None:
+            print("Init cos client error: ", bucket)
+            continue
+
         cos_bucket = CosBucket(bucket['CreationDate'], bucket['Name'],
                                bucket['Location'], cos_client)
         cos_bucket.set_acl()
