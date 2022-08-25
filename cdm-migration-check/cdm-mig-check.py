@@ -102,7 +102,7 @@ def get_migd_files_with_prefix(prefix):
     return mfinfo, mfsize
 
 def check_specified_files(files):
-    minfo = []
+    minfo = set()
     for file in files:
         flist = file.split(',')
         fkey = ','.join(flist[:-1])
